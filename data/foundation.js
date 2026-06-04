@@ -33,8 +33,8 @@ window.FOUNDATION_DATA = {
         {title:'Check system load', cmd:'uptime && nproc', expected:'load average: X.X — compare to nproc (number of CPU cores). Load > cores = overloaded', isBreak:false, desc:'Load average over 1, 5, 15 minutes. If greater than number of CPU cores, system is under stress.'},
         {title:'Find top CPU processes', cmd:'ps aux --sort=-%cpu | head -10', expected:'List sorted by CPU usage — top offender visible at top', isBreak:false, desc:''},
         {title:'Check disk space', cmd:'df -h && du -sh /var/log/* 2>/dev/null | sort -rh | head -5', expected:'Disk usage per filesystem + top 5 largest log directories', isBreak:false, desc:'Full disk at 100% is a very common server problem.'},
-        {title:'Create a large file to simulate disk pressure', cmd:'dd if=/dev/zero of=/tmp/bigfile bs=1M count=200 2>&1', expected:'209715200 bytes transferred', isBreak:True, desc:'Now run df -h again — you will see reduced space. Find it with du -sh /tmp/* then clean up.'},
-        {title:'Clean up', cmd:'rm /tmp/bigfile && echo "Space restored:"&& df -h | grep tmpfs', expected:'Space restored', isBreak:False, desc:''},
+        {title:'Create a large file to simulate disk pressure', cmd:'dd if=/dev/zero of=/tmp/bigfile bs=1M count=200 2>&1', expected:'209715200 bytes transferred', isBreak:true, desc:'Now run df -h again — you will see reduced space. Find it with du -sh /tmp/* then clean up.'},
+        {title:'Clean up', cmd:'rm /tmp/bigfile && echo "Space restored:"&& df -h | grep tmpfs', expected:'Space restored', isBreak:false, desc:''},
       ]
     },
     exercises:[
@@ -97,8 +97,8 @@ Command substitution: <code>DATE=$(date +%Y-%m-%d)</code><br><br>
         {title:'Add the replica health check', cmd:'cat >> health_check.sh << "SCRIPT"\n\nREADY=$(kubectl get deploy $DEPLOY -n $NS -o jsonpath=\'{.status.readyReplicas}\' 2>/dev/null || echo 0)\nDESIRED=$(kubectl get deploy $DEPLOY -n $NS -o jsonpath=\'{.spec.replicas}\' 2>/dev/null || echo 1)\n\n[ "$READY" = "$DESIRED" ] && echo "✅ PASS: $READY/$DESIRED replicas ready" || { echo "❌ FAIL: $READY/$DESIRED replicas ready"; exit 1; }\nSCRIPT\nchmod +x health_check.sh', expected:'Script updated', isBreak:false, desc:'[ "$A" = "$B" ] && success || { failure; exit 1; } is a common one-line if/else pattern.'},
         {title:'Deploy a test app', cmd:'kubectl create deployment nginx --image=nginx:alpine --replicas=2 2>/dev/null || true\nkubectl rollout status deployment/nginx', expected:'deployment nginx successfully rolled out', isBreak:false, desc:''},
         {title:'Run health check — should pass', cmd:'./health_check.sh nginx default', expected:'✅ PASS: 2/2 replicas ready', isBreak:false, desc:''},
-        {title:'Simulate a failed deployment', cmd:'kubectl scale deployment nginx --replicas=0\n./health_check.sh nginx default || echo "Exit code: $?"', expected:'❌ FAIL — exit code 1', isBreak:True, desc:'Exit code 1 tells CI/CD systems like Azure Pipelines and GitHub Actions that the step failed. Scale back: kubectl scale deployment nginx --replicas=2'},
-        {title:'Clean up', cmd:'kubectl delete deployment nginx && rm health_check.sh', expected:'Deployment deleted', isBreak:False, desc:''},
+        {title:'Simulate a failed deployment', cmd:'kubectl scale deployment nginx --replicas=0\n./health_check.sh nginx default || echo "Exit code: $?"', expected:'❌ FAIL — exit code 1', isBreak:true, desc:'Exit code 1 tells CI/CD systems like Azure Pipelines and GitHub Actions that the step failed. Scale back: kubectl scale deployment nginx --replicas=2'},
+        {title:'Clean up', cmd:'kubectl delete deployment nginx && rm health_check.sh', expected:'Deployment deleted', isBreak:false, desc:''},
       ]
     },
     exercises:[
@@ -157,7 +157,7 @@ Command substitution: <code>DATE=$(date +%Y-%m-%d)</code><br><br>
         {title:'Create a K8s config and commit', cmd:'printf "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: monitoring\n  labels:\n    team: platform" > monitoring-ns.yaml && git add . && git commit -m "feat: add monitoring namespace with platform label"', expected:'1 file changed', isBreak:false, desc:'Conventional commit format: type(scope): description. Types: feat, fix, docs, chore, refactor, test'},
         {title:'Review what you are about to merge', cmd:'git diff main..feat/add-monitoring-namespace', expected:'Shows your new file as a diff', isBreak:false, desc:'Always review the diff before merging. This is what a code reviewer sees in a PR.'},
         {title:'Merge to main', cmd:'git checkout main && git merge feat/add-monitoring-namespace --no-ff -m "Merge: add monitoring namespace"', expected:'Merge commit created', isBreak:false, desc:'--no-ff creates a merge commit even if fast-forward is possible. This preserves branch history in the log.'},
-        {title:'Break it then fix it with revert', cmd:'echo "BROKEN_CONFIG" >> monitoring-ns.yaml && git add . && git commit -m "mistake: broke the config"\ngit log --oneline\ngit revert HEAD --no-edit\ngit log --oneline', expected:'Revert commit visible, original commit still in history', isBreak:True, desc:'Notice: both the mistake AND the revert are visible in history. This is correct — full audit trail. Never use reset --hard on shared branches.'},
+        {title:'Break it then fix it with revert', cmd:'echo "BROKEN_CONFIG" >> monitoring-ns.yaml && git add . && git commit -m "mistake: broke the config"\ngit log --oneline\ngit revert HEAD --no-edit\ngit log --oneline', expected:'Revert commit visible, original commit still in history', isBreak:true, desc:'Notice: both the mistake AND the revert are visible in history. This is correct — full audit trail. Never use reset --hard on shared branches.'},
         {title:'Clean up', cmd:'cd .. && rm -rf pz-git', expected:'', isBreak:false, desc:''},
       ]
     },
