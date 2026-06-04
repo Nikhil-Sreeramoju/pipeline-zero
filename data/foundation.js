@@ -1,414 +1,292 @@
-// ============================================================
-// PipelineZero — data/foundation.js
-// Foundation phase: 6 lessons
-// ============================================================
-
+// PipelineZero — data/foundation.js v2.0
 window.FOUNDATION_DATA = {
-  id: 'foundation',
-  name: 'Foundation',
-  icon: '🐧',
-  color: 'phase-foundation',
-  tier: 1,
-  desc: 'The non-negotiable base every DevOps engineer needs cold. These skills appear in every interview and underpin every tool you will use.',
-  lessons: [
+  id:'foundation', name:'Foundation', icon:'🐧', tier:1,
+  desc:'The non-negotiable base. Linux, Git, and Networking underpin every DevOps tool. Gaps here cause failures in interviews and on-call incidents.',
+  lessons:[
 
-    // ── LESSON F1 ──────────────────────────────────────────
-    {
-      id: 'f1-linux-core',
-      title: 'Linux Core Commands',
-      subtitle: 'The terminal is your home — own it',
-      time: '45 min',
-      type: 'concept',
-      certs: ['lfcs'],
-      xp: 100,
-
-      concept: {
-        plain: 'Linux is the operating system that runs almost every server, container, and cloud machine in the world. Knowing how to navigate it with just a keyboard is the first skill every DevOps engineer needs.',
-        analogy: 'Think of the terminal like learning to cook instead of always ordering takeaway. At first it feels slower and harder. But once you know it, you can make exactly what you want, exactly how you want it — faster than any app could deliver it. Every DevOps tool you will ever use is just a menu in this kitchen.',
-        technical: 'Five command categories to master cold:<br><br><strong>Navigation:</strong> <code>ls -la</code> (list all files with permissions), <code>cd /path</code> (change directory), <code>pwd</code> (where am I?), <code>find /var/log -name "*.log"</code> (find files)<br><br><strong>File operations:</strong> <code>cat file.txt</code> (print file), <code>less file.txt</code> (scroll through), <code>head/tail -n 20</code> (first/last 20 lines), <code>cp -r src/ dest/</code> (copy), <code>mv old new</code> (move/rename), <code>rm -rf dir/</code> (delete recursively — careful!)<br><br><strong>Process management:</strong> <code>ps aux | grep myapp</code> (find process), <code>kill -9 PID</code> (force kill), <code>top</code> / <code>htop</code> (live CPU/mem), <code>nohup command &</code> (run in background)<br><br><strong>Disk & system:</strong> <code>df -h</code> (disk usage), <code>du -sh /var/log/*</code> (folder sizes), <code>free -h</code> (memory), <code>uname -a</code> (kernel info)<br><br><strong>Text processing:</strong> <code>grep -r "ERROR" /var/log</code> (search in files), <code>awk \'{print $1}\' file</code> (print column), <code>sed \'s/old/new/g\' file</code> (find+replace), <code>sort | uniq -c</code> (count duplicates)',
-        hasAnimation: false
-      },
-
-      quickCheck: {
-        question: 'You are on a production server. An app is consuming 100% CPU and you need to find its Process ID. What is the fastest command?',
-        options: [
-          'ls -la /proc',
-          'cat /var/log/syslog',
-          'top or htop — shows live CPU per process with PID',
-          'systemctl status'
-        ],
-        correct: 2,
-        explanation: 'top and htop show live, per-process CPU usage with PIDs updated every second. In htop you can press F6 to sort by CPU and see the culprit immediately. Then kill -9 <PID> to terminate it. The /proc filesystem and syslog would take much longer to find the same information.'
-      },
-
-      commands: [
-        {
-          scenario: 'You want to find all files ending in .log inside the /var directory',
-          cmd: 'find /var -name "*.log"',
-          question: 'What does this command do?',
-          options: [
-            'Deletes all log files in /var',
-            'Searches /var recursively and prints paths of all files matching *.log',
-            'Shows the contents of all log files',
-            'Counts the number of log files'
-          ],
-          correct: 1,
-          explanation: 'find traverses the directory tree from the starting path (/var), matching files by name pattern. The * is a wildcard — *.log matches any filename ending in .log. This is one of the most used debugging commands when you need to track down a specific file.'
-        },
-        {
-          scenario: 'You want to see the last 50 lines of a log file as new lines are being written',
-          cmd: 'tail -f -n 50 /var/log/app.log',
-          question: 'What does -f do here?',
-          options: [
-            'Formats the output with colours',
-            'Follows the file — keeps printing new lines as they are written (like a live feed)',
-            'Filters lines containing errors only',
-            'Forces read permission if denied'
-          ],
-          correct: 1,
-          explanation: '-n 50 shows the last 50 lines. -f follows the file and keeps the terminal open, printing new lines as they arrive in real time. This is the standard way to monitor logs during a deployment or incident. Press Ctrl+C to exit.'
-        }
-      ],
-
-      lab: {
-        title: 'Linux Terminal Survival Kit',
-        scenario: 'You have just SSH\'d into a server that is "behaving strangely." Your job is to diagnose it using only the terminal.',
-        laptopSetup: 'Open your WSL2 terminal (Windows) or Terminal app (Mac/Linux). No extra software needed.',
-        cloudUrl: 'https://killercoda.com/learn/course/linux-basics',
-        steps: [
-          { title: 'Check who is logged in and system uptime', cmd: 'w && uptime', expected: 'Shows logged-in users and load averages', isBreak: false, desc: 'uptime shows how long the server has been running and load averages (1/5/15 min). High load average = busy system.' },
-          { title: 'Find the top CPU-consuming process', cmd: 'ps aux --sort=-%cpu | head -10', expected: 'List of processes sorted by CPU usage', isBreak: false, desc: 'ps aux lists all processes. --sort=-%cpu sorts by CPU descending. head -10 shows only the top 10.' },
-          { title: 'Check available disk space', cmd: 'df -h', expected: 'Filesystem sizes and usage percentages', isBreak: false, desc: 'Full disk (/var or /tmp at 100%) is a very common cause of server problems.' },
-          { title: 'Find large files eating disk space', cmd: 'du -sh /var/log/* 2>/dev/null | sort -rh | head -5', expected: 'Top 5 largest directories in /var/log', isBreak: false, desc: 'Log files grow forever if not rotated. This finds the biggest offenders.' },
-          { title: 'Break it on purpose — flood a file', cmd: 'for i in $(seq 1 1000); do echo "fake error $i" >> /tmp/test.log; done', expected: '/tmp/test.log now has 1000 lines', isBreak: true, desc: 'Now diagnose it: how many lines? Use wc -l /tmp/test.log. Find lines with "500": grep "500" /tmp/test.log | wc -l' },
-          { title: 'Clean up', cmd: 'rm /tmp/test.log', expected: 'File deleted', isBreak: false, desc: 'Always clean up after labs to keep your machine tidy.' }
-        ],
-        learned: ['Navigate any Linux server without a GUI', 'Find CPU/memory/disk issues in under 2 minutes', 'Read log files live with tail -f']
-      }
+  {
+    id:'f1-linux-core', title:'Linux Core Commands', subtitle:'The terminal is your home — own it',
+    time:'45 min', type:'concept', certs:['lfcs'], xp:100,
+    concept:{
+      plain:'Linux is the OS running on almost every server, container, and cloud machine in the world. The terminal is how you control it — no mouse, just keyboard commands. Every DevOps tool you will ever use is operated from here.',
+      analogy:'Learning the terminal is like learning to cook instead of always ordering takeaway. Harder at first, but once it clicks you can make exactly what you want faster than any GUI can deliver it. The GUI tools change every year. The terminal commands have been the same for 40 years.',
+      technical:`<strong>Navigation:</strong> <code>ls -la</code> list all files with permissions, <code>cd /path</code> change directory, <code>pwd</code> print working directory, <code>find /var -name "*.log" -mtime -1</code> find files modified in last 24h<br><br><strong>File operations:</strong> <code>cat file</code> print, <code>less file</code> scroll, <code>head -n 20</code> first 20 lines, <code>tail -f app.log</code> follow live log, <code>cp -r src/ dest/</code> copy, <code>mv old new</code> move/rename, <code>rm -rf dir/</code> delete recursively<br><br><strong>Permissions:</strong> Numbers = sum of read(4)+write(2)+execute(1). <code>chmod 755</code> = owner rwx, group rx, others rx. <code>chmod 644</code> = owner rw, others r. <code>chown user:group file</code> change ownership<br><br><strong>Processes:</strong> <code>ps aux | grep myapp</code> find process, <code>kill -9 PID</code> force kill, <code>top</code> or <code>htop</code> live view, <code>nohup cmd &</code> background<br><br><strong>Disk/Memory:</strong> <code>df -h</code> disk usage, <code>du -sh /var/log/*</code> folder sizes, <code>free -h</code> memory<br><br><strong>Text processing:</strong> <code>grep -r "ERROR" /var/log</code> search files, <code>awk '{print $1}'</code> first column, <code>sed 's/old/new/g'</code> replace, <code>sort | uniq -c | sort -rn</code> count occurrences`
     },
-
-    // ── LESSON F2 ──────────────────────────────────────────
-    {
-      id: 'f2-shell-scripting',
-      title: 'Shell Scripting & Automation',
-      subtitle: 'Stop doing the same thing twice',
-      time: '60 min',
-      type: 'lab',
-      certs: ['lfcs', 'az400'],
-      xp: 120,
-
-      concept: {
-        plain: 'A shell script is a text file containing a list of terminal commands. Instead of typing the same 10 commands manually every time, you write them in a file once, and run the file.',
-        analogy: 'Shell scripts are kitchen recipes. A chef does not improvise a new dish from memory every day — they write the recipe once, follow it every time, and the result is consistent. A good DevOps engineer turns any task they do more than three times into a script. That is how you scale your work without scaling your hours.',
-        technical: '<strong>Script anatomy:</strong><br><code>#!/bin/bash</code> — the shebang. Tells the OS which interpreter to use. Always the first line.<br><code>chmod +x script.sh</code> — make it executable<br><code>./script.sh</code> — run it<br><br><strong>Variables:</strong> <code>NAME="Nikhil"</code>, use as <code>$NAME</code> or <code>${NAME}</code>. Command substitution: <code>DATE=$(date +%Y-%m-%d)</code><br><br><strong>Control flow:</strong><br><code>if [ -f "$FILE" ]; then ... elif ...; else ...; fi</code><br><code>for POD in $(kubectl get pods -o name); do echo $POD; done</code><br><code>while true; do sleep 5; check_health; done</code><br><br><strong>Error handling (critical):</strong><br><code>set -e</code> — exit immediately on any error<br><code>set -o pipefail</code> — catch errors in pipes<br><code>set -u</code> — treat undefined variables as errors<br><code>trap "cleanup" EXIT</code> — always run cleanup on exit<br><br><strong>Functions:</strong><br><code>deploy() { kubectl apply -f $1; kubectl rollout status deploy/$2; }</code><br><code>deploy manifests/ myapp</code><br><br><strong>Key tools:</strong> <code>jq</code> for JSON (parsing kubectl output), <code>xargs</code> for piping to commands, <code>awk</code> for columns, <code>sed</code> for replacements',
-        hasAnimation: false
-      },
-
-      quickCheck: {
-        question: 'You write a deployment script. Halfway through, one command fails silently and the script keeps running, leaving infrastructure in a broken half-deployed state. How do you prevent this?',
-        options: [
-          'Wrap every command in an if-else statement',
-          'Add set -e and set -o pipefail at the top — script exits immediately on any error or pipe failure',
-          'Run the script with bash -v to see verbose output',
-          'Add echo "done" after every command'
-        ],
-        correct: 1,
-        explanation: 'set -e makes the script exit immediately if any command returns a non-zero exit code. set -o pipefail catches failures inside pipes (like cmd1 | cmd2 where cmd1 fails but cmd2 succeeds). Together these are the two most important safety settings for any production shell script. Add set -u too to catch undefined variable mistakes.'
-      },
-
-      commands: [
-        {
-          scenario: 'Your script has a variable that might be empty. You want a default value if it is not set.',
-          cmd: 'NAMESPACE=${NAMESPACE:-"default"}',
-          question: 'What does ${NAMESPACE:-"default"} do?',
-          options: [
-            'Sets NAMESPACE to default permanently',
-            'Uses the value of NAMESPACE if it is set, otherwise uses "default"',
-            'Checks if NAMESPACE equals "default"',
-            'Deletes the NAMESPACE variable'
-          ],
-          correct: 1,
-          explanation: 'The :- operator is parameter expansion with a default. If NAMESPACE is unset or empty, "default" is used. This pattern avoids errors when scripts are run without all env vars set. Common in CI/CD scripts: ENV=${DEPLOY_ENV:-"staging"}'
-        },
-        {
-          scenario: 'You have a list of K8s namespaces and want to run a command in each one.',
-          cmd: 'for ns in dev staging prod; do kubectl get pods -n $ns; done',
-          question: 'What does this loop do?',
-          options: [
-            'Runs kubectl get pods once for all namespaces',
-            'Creates three namespaces named dev, staging, prod',
-            'Runs kubectl get pods -n separately for dev, then staging, then prod in sequence',
-            'Fails — you cannot loop over text values in bash'
-          ],
-          correct: 2,
-          explanation: 'The for loop iterates over the space-separated list. Each iteration sets ns to the next value. This is how you automate tasks across multiple environments without copy-pasting commands. The same pattern works with $(kubectl get namespaces -o name) to loop over live namespaces.'
-        }
-      ],
-
-      lab: {
-        title: 'Write a Real Deployment Health Check Script',
-        scenario: 'Your team asks you to write a script that checks if a Kubernetes deployment is healthy after a release. It should print pass or fail for each check.',
-        laptopSetup: 'Requires kubectl and a running minikube cluster. Run: minikube start',
-        cloudUrl: 'https://killercoda.com/playgrounds/scenario/kubernetes',
-        steps: [
-          { title: 'Create the script file', cmd: 'cat > health_check.sh << \'EOF\'\n#!/bin/bash\nset -e\nset -o pipefail\n\nDEPLOYMENT=${1:-"nginx"}\nNAMESPACE=${2:-"default"}\n\necho "=== Health Check: $DEPLOYMENT in $NAMESPACE ==="\nEOF', expected: 'Script file created', isBreak: false, desc: 'The heredoc (<<\'EOF\') lets you write multiline content to a file.' },
-          { title: 'Add replica check and make executable', cmd: 'cat >> health_check.sh << \'EOF\'\n\nREADY=$(kubectl get deploy $DEPLOYMENT -n $NAMESPACE -o jsonpath=\'{.status.readyReplicas}\')\nDESIRED=$(kubectl get deploy $DEPLOYMENT -n $NAMESPACE -o jsonpath=\'{.spec.replicas}\')\n\nif [ "$READY" = "$DESIRED" ]; then\n  echo "✅ Replicas: $READY/$DESIRED PASS"\nelse\n  echo "❌ Replicas: $READY/$DESIRED FAIL"\n  exit 1\nfi\nEOF\nchmod +x health_check.sh', expected: 'Script updated and executable', isBreak: false, desc: 'kubectl -o jsonpath extracts specific fields from K8s resources — much cleaner than grep.' },
-          { title: 'Deploy a test app to check', cmd: 'kubectl create deployment nginx --image=nginx:alpine --replicas=2 2>/dev/null || true', expected: 'Deployment nginx created', isBreak: false, desc: '2>/dev/null || true silences errors if it already exists.' },
-          { title: 'Run your health check', cmd: './health_check.sh nginx default', expected: '✅ Replicas: 2/2 PASS', isBreak: false, desc: 'Your script is now reusable for any deployment in any namespace.' },
-          { title: 'Break it — scale down to cause a mismatch', cmd: 'kubectl scale deployment nginx --replicas=1 && sleep 3 && ./health_check.sh nginx default', expected: 'Script may show FAIL if replica not yet ready', isBreak: true, desc: 'Simulates a partial deployment failure. In CI/CD pipelines, this script would fail the build and alert the team.' },
-          { title: 'Clean up', cmd: 'kubectl delete deployment nginx && rm health_check.sh', expected: 'Resources cleaned up', isBreak: false, desc: 'Good habit — always clean up lab resources.' }
-        ],
-        learned: ['Write safe production shell scripts with set -e and set -o pipefail', 'Use loops and conditionals for automation', 'Extract data from kubectl using jsonpath']
-      }
+    commands:[
+      {cmd:'ls -la', desc:'List all files including hidden ones with permissions, owner, size, and timestamps', when:'First command on any new server — understand what is there', example:'-rw-r--r-- 1 root root 4096 app.conf', level:'basic'},
+      {cmd:'find /var -name "*.log" -mtime -1', desc:'Find files matching pattern, -mtime -1 = modified in last 24 hours', when:'Tracking down log files or recently changed configs', example:'/var/log/nginx/access.log', level:'basic'},
+      {cmd:'tail -f /var/log/app.log', desc:'Follow a log file in real-time — prints new lines as they are written', when:'Monitoring deployments and debugging live issues. Press Ctrl+C to stop', example:'2026-01-01 INFO Request received', level:'basic'},
+      {cmd:'grep -r "ERROR" /var/log --include="*.log"', desc:'Recursively search all .log files for the word ERROR', when:'Finding errors across multiple log files during an incident', example:'/var/log/app.log:ERROR DB timeout at line 42', level:'basic'},
+      {cmd:'ps aux | grep nginx', desc:'List all processes and filter for ones matching nginx', when:'Check if a service is running and find its PID', example:'root 1234 0.0 0.0 nginx: master process', level:'basic'},
+      {cmd:'kill -9 1234', desc:'Forcefully terminate process PID 1234. -9=SIGKILL, cannot be ignored. Try kill -15 first (graceful)', when:'Process is hung and not responding to normal termination', example:'(process terminated)', level:'basic'},
+      {cmd:'df -h', desc:'Show disk usage of all filesystems in human-readable format', when:'Diagnosing "no space left on device" errors', example:'/dev/sda1 50G 45G 5G 90% /', level:'basic'},
+      {cmd:'du -sh /var/log/*', desc:'Show size of each directory inside /var/log in human-readable format', when:'Finding what is eating up disk space', example:'2.1G /var/log/nginx\n500M /var/log/app', level:'intermediate'},
+      {cmd:'chmod 755 script.sh && chown deploy:deploy script.sh', desc:'Set script permissions and change ownership in one line', when:'Setting up deployment scripts', example:'(permissions and owner updated)', level:'basic'},
+      {cmd:"awk '{print $1, $7}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -20", desc:"Extract IP and URL columns, count occurrences, show top 20 most frequent requests", when:"Analysing traffic patterns during incidents", example:"1234 192.168.1.1 /api/health", level:"advanced"},
+      {cmd:"sed -i 's/localhost/db.prod.svc.cluster.local/g' config.yml", desc:'Find and replace text in-place in a file (-i flag)', when:'Updating config files in deployment automation scripts', example:'(file modified)', level:'intermediate'},
+    ],
+    lab:{
+      title:'Server Triage — Diagnose a Slow Server in 5 Minutes',
+      scenario:'You SSH into a server that is behaving strangely. CPU is high, disk might be full. Your job: diagnose it systematically using only the terminal.',
+      cloudUrl:'https://killercoda.com/learn/course/linux-basics',
+      steps:[
+        {title:'Check system load', cmd:'uptime && nproc', expected:'load average: X.X — compare to nproc (number of CPU cores). Load > cores = overloaded', isBreak:false, desc:'Load average over 1, 5, 15 minutes. If greater than number of CPU cores, system is under stress.'},
+        {title:'Find top CPU processes', cmd:'ps aux --sort=-%cpu | head -10', expected:'List sorted by CPU usage — top offender visible at top', isBreak:false, desc:''},
+        {title:'Check disk space', cmd:'df -h && du -sh /var/log/* 2>/dev/null | sort -rh | head -5', expected:'Disk usage per filesystem + top 5 largest log directories', isBreak:false, desc:'Full disk at 100% is a very common server problem.'},
+        {title:'Create a large file to simulate disk pressure', cmd:'dd if=/dev/zero of=/tmp/bigfile bs=1M count=200 2>&1', expected:'209715200 bytes transferred', isBreak:True, desc:'Now run df -h again — you will see reduced space. Find it with du -sh /tmp/* then clean up.'},
+        {title:'Clean up', cmd:'rm /tmp/bigfile && echo "Space restored:"&& df -h | grep tmpfs', expected:'Space restored', isBreak:False, desc:''},
+      ]
     },
+    exercises:[
+      {q:'What command shows all running processes with CPU and memory usage, and updates in real-time?', a:'<code>top</code> or the better alternative <code>htop</code>. htop adds: colour coding, mouse support, ability to sort by any column (F6), kill processes interactively (F9), and see process tree. Both show CPU%, MEM%, PID, and command. On a server without htop, top is always available.', level:'basic'},
+      {q:'How do you view the last 100 lines of a log file AND keep watching for new entries?', a:'<code>tail -n 100 -f /var/log/app.log</code>. The -n 100 shows the last 100 lines first, then -f follows (streams) new lines as they are written. This is your go-to tool when watching a deployment or debugging a live issue. Press Ctrl+C to stop following.', level:'basic'},
+      {q:'What does chmod 777 do and why should you never use it in production?', a:'chmod 777 gives read+write+execute to owner, group, AND all other users. Any user on the system (or a compromised process running as any user) can read, modify, or execute the file. In production: never use 777. Use 755 for executables/directories (owner write, others read/execute), 644 for config files (owner write, others read only), 600 for secrets (owner only).', level:'basic'},
+      {q:'How do you find all files larger than 100MB on a server?', a:'<code>find / -size +100M -type f 2>/dev/null</code>. The -size +100M finds files larger than 100 megabytes. -type f means files only (not directories). 2>/dev/null suppresses permission errors for directories you cannot read. Add -exec ls -lh {} \; to see the file sizes in human-readable format.', level:'intermediate'},
+      {q:'A service writes logs to /var/log/myapp.log and the disk is now 95% full. What are your options?', a:'Immediate relief: 1. <code>truncate -s 0 /var/log/myapp.log</code> — empty the log file without deleting it (the process keeps its file handle). 2. <code>gzip /var/log/myapp.log.1</code> — compress older rotated logs. Long-term fix: set up logrotate to automatically rotate and compress log files. Configure app to set a max log size. Consider shipping logs to a central aggregator (Loki, ELK) instead of local disk.', level:'intermediate'},
+    ],
+    interview:[
+      {q:'A Linux server is responding slowly. Walk me through your diagnosis.', level:'intermediate',
+       a:'Systematic approach — check four bottlenecks in order:<br><strong>1. CPU:</strong> <code>top</code> — any process at 100%? Check load average vs <code>nproc</code>.<br><strong>2. Memory:</strong> <code>free -h</code> — is swap being used? High swap = out of RAM.<br><strong>3. Disk I/O:</strong> <code>iostat -x 1</code> or <code>iotop</code> — which process is hammering disk?<br><strong>4. Network:</strong> <code>ss -s</code> — connection storms? <code>iftop</code> — unusual traffic?<br>Also: <code>journalctl -xe</code> for recent system errors, <code>dmesg | tail -20</code> for kernel messages.',
+       trap:'Only checking CPU. The slowdown is very often disk I/O (a process filling the disk or thrashing) or swap (out of memory). Checking all four bottlenecks shows systematic senior-engineer thinking.'},
+      {q:'What is the difference between a process and a thread in Linux?', level:'intermediate',
+       a:'A process is an independent execution unit with its own memory space, file descriptors, and PID. Processes are isolated — one cannot read another\'s memory without special mechanisms. A thread is a lighter execution unit inside a process — threads within the same process share memory space and file descriptors. Creating a thread is cheaper (less memory overhead) than creating a process. In K8s: each container has its own process namespace (isolated PIDs) but containers in the same Pod share the same network namespace (same IP).',
+       trap:'Stopping at "threads share memory." Connecting to K8s pod/container context shows you have made the DevOps connection.'},
+    ],
+    resources:[
+      {label:'Killercoda Linux Basics — free in-browser lab', url:'https://killercoda.com/learn/course/linux-basics'},
+      {label:'OverTheWire Bandit — learn Linux by hacking (free)', url:'https://overthewire.org/wargames/bandit'},
+      {label:'tldr.sh — simplified man pages', url:'https://tldr.sh'},
+    ]
+  },
 
-    // ── LESSON F3 ──────────────────────────────────────────
-    {
-      id: 'f3-linux-networking',
-      title: 'Linux Networking Tools',
-      subtitle: 'Diagnose any connectivity problem in minutes',
-      time: '45 min',
-      type: 'concept',
-      certs: ['lfcs', 'cka'],
-      xp: 100,
-
-      concept: {
-        plain: 'When your app cannot reach a database, or a Kubernetes pod cannot talk to a service, Linux networking tools let you trace exactly where the connection is breaking — which port, which DNS name, which route.',
-        analogy: 'Linux networking tools are a doctor\'s diagnostic kit. ss is the stethoscope — you listen to which ports the body (server) is using. curl is a test patient you send through the system to see if it comes out healthy. dig is the specialist who explains why DNS lookups are failing. tcpdump is the X-ray — you see every packet. You do not need all tools every time, but you need to know which one to reach for.',
-        technical: '<strong>Port and socket inspection:</strong><br><code>ss -tulpn</code> — all listening TCP/UDP ports with the process name. The modern replacement for netstat.<br><code>netstat -tulpn</code> — older but still common in interview questions<br><br><strong>Connectivity testing:</strong><br><code>curl -v https://api.example.com</code> — verbose HTTP request, shows TLS handshake, headers, response<br><code>curl -o /dev/null -s -w "%{http_code}" url</code> — just the status code, useful in scripts<br><code>nc -zv hostname 8080</code> — test if TCP port is open (no HTTP needed)<br><code>wget --spider url</code> — check if URL is reachable<br><br><strong>DNS tools:</strong><br><code>dig google.com</code> — full DNS query with answer records<br><code>dig @8.8.8.8 google.com</code> — query a specific DNS server<br><code>nslookup service-name.namespace.svc.cluster.local</code> — test K8s DNS resolution<br><br><strong>Packet capture:</strong><br><code>tcpdump -i eth0 port 8080 -nn</code> — capture packets on interface eth0, port 8080<br><br><strong>Routing and interfaces:</strong><br><code>ip addr</code> — show all network interfaces and IPs<br><code>ip route</code> — show routing table<br><code>traceroute hostname</code> — trace the network path hop by hop<br><br><strong>K8s specific:</strong><br><code>kubectl exec -it pod -- curl http://service-name:80</code> — test connectivity FROM inside a pod (most accurate)<br><code>kubectl exec -it pod -- nslookup service-name</code> — test DNS resolution from inside the cluster',
-        hasAnimation: false
-      },
-
-      quickCheck: {
-        question: 'A Kubernetes pod cannot reach a service. You suspect DNS is the issue. What is the most accurate test?',
-        options: [
-          'ping the service IP from your laptop',
-          'curl the service from your laptop using port-forward',
-          'kubectl exec into the pod and run nslookup service-name or curl http://service-name:port',
-          'Check the Service YAML for typos'
-        ],
-        correct: 2,
-        explanation: 'Testing from inside the pod is the only accurate test because it uses the exact same network namespace, DNS configuration, and routing rules that the real traffic uses. Testing from your laptop or with port-forward bypasses all of that. If DNS works from inside the pod, the issue is elsewhere. If it fails, you have found your culprit.'
-      },
-
-      commands: [
-        {
-          scenario: 'You want to find which process is listening on port 8080',
-          cmd: 'ss -tulpn | grep 8080',
-          question: 'What does the -tulpn flags mean?',
-          options: [
-            't=TCP, u=UDP, l=listening, p=show process, n=numeric (no DNS lookup)',
-            't=timestamp, u=user, l=list, p=port, n=name',
-            'These flags are optional and do not change the output',
-            'ss only works without flags'
-          ],
-          correct: 0,
-          explanation: 'Each flag has a specific purpose: -t (TCP), -u (UDP), -l (listening sockets only), -p (show the process name and PID), -n (show numeric IPs and ports instead of resolving names — faster). This combination is the most useful for finding which process owns a port.'
-        },
-        {
-          scenario: 'You want to test if a remote server\'s MySQL port (3306) is open without installing MySQL client',
-          cmd: 'nc -zv db.example.com 3306',
-          question: 'What does nc -zv do?',
-          options: [
-            'Connects to MySQL and runs a test query',
-            '-z scans without sending data (port check only), -v verbose output — tells you if the port is open or refused',
-            'Downloads the MySQL schema',
-            'nc is a MySQL-specific tool'
-          ],
-          correct: 1,
-          explanation: 'nc (netcat) is the Swiss army knife of networking. -z means "scan mode" — try to connect but send no data. -v means verbose — print whether it succeeded or failed. You will see "Connection to db.example.com 3306 port [tcp/mysql] succeeded!" if the port is open. Works for any TCP port, not just databases.'
-        }
-      ],
-
-      lab: null
+  {
+    id:'f2-shell-scripting', title:'Shell Scripting & Automation', subtitle:'Stop doing the same thing twice',
+    time:'60 min', type:'lab', certs:['lfcs','az400'], xp:120,
+    concept:{
+      plain:'A shell script is a file of terminal commands that runs in sequence. Instead of typing the same 10 commands every deployment, you write them once and run the file. Every CI/CD pipeline step is essentially a shell script.',
+      analogy:'Shell scripts are kitchen recipes. A chef does not improvise the same dish from memory every service — they write the recipe once, follow it every time, and the result is always the same. A good DevOps engineer automates anything they do more than three times. That is the difference between a junior who types commands and a senior who writes tools.',
+      technical:`<strong>Standard script header:</strong><br>
+<code>#!/bin/bash</code> — shebang: tells OS which interpreter to use<br>
+<code>set -e</code> — exit immediately on any error<br>
+<code>set -o pipefail</code> — catch failures inside pipes (cmd1 | cmd2)<br>
+<code>set -u</code> — error on undefined variables<br><br>
+<strong>Variables:</strong> <code>NAME="value"</code>, reference as <code>$NAME</code> or <code>\${NAME}</code><br>
+Default: <code>ENV=\${DEPLOY_ENV:-"staging"}</code><br>
+Command substitution: <code>DATE=$(date +%Y-%m-%d)</code><br><br>
+<strong>Control flow:</strong><br>
+<code>if [ -f "$FILE" ]; then ... fi</code><br>
+<code>for NS in dev staging prod; do kubectl get pods -n $NS; done</code><br>
+<code>while ! curl -f $URL; do sleep 5; done</code><br><br>
+<strong>Functions:</strong> <code>deploy() { kubectl apply -f $1 && kubectl rollout status deploy/$2; }</code><br><br>
+<strong>Exit codes:</strong> <code>$?</code> = last command exit code. 0=success, non-zero=failure.<br><br>
+<strong>Key tools in scripts:</strong> <code>jq</code> (parse JSON/kubectl output), <code>awk</code> (columns), <code>sed</code> (replace), <code>xargs</code> (pipe to commands)`
     },
-
-    // ── LESSON F4 ──────────────────────────────────────────
-    {
-      id: 'f4-git-version-control',
-      title: 'Git & Version Control',
-      subtitle: 'Every CI/CD pipeline starts with a git push',
-      time: '45 min',
-      type: 'concept',
-      certs: ['az400', 'aws'],
-      xp: 100,
-      animationId: 'git-branching',
-
-      concept: {
-        plain: 'Git tracks every change you make to your code or configuration files. It lets you go back to any previous version, work on multiple features simultaneously, and collaborate with a team without overwriting each other\'s work.',
-        analogy: 'Git is a time machine for your work. Every commit (save point) captures exactly what every file looks like at that moment. You can jump back to any commit, anytime. Branches are parallel universes — you create a new branch to experiment, and if it goes wrong, the original universe (main branch) is completely untouched. Merging brings the best of two universes together.',
-        technical: '<strong>Core workflow:</strong><br><code>git clone https://github.com/org/repo.git</code> — download a repository<br><code>git status</code> — what has changed since last commit?<br><code>git add -A</code> — stage all changes<br><code>git commit -m "feat: add K8s deployment config"</code> — save snapshot<br><code>git push origin main</code> — upload to remote<br><code>git pull</code> — download + merge latest changes<br><br><strong>Branching:</strong><br><code>git checkout -b feature/add-ingress</code> — create + switch to new branch<br><code>git branch -a</code> — list all branches<br><code>git merge feature/add-ingress</code> — merge feature into current branch<br><code>git rebase main</code> — replay your commits on top of main (clean history)<br><br><strong>Undoing things:</strong><br><code>git reset --soft HEAD~1</code> — undo last commit, keep changes staged<br><code>git reset --hard HEAD~1</code> — undo last commit AND discard changes (dangerous on shared branches)<br><code>git revert abc123</code> — create a new commit that undoes a specific commit (safe for shared branches)<br><code>git stash</code> / <code>git stash pop</code> — temporarily save uncommitted work<br><br><strong>Advanced:</strong><br><code>git reflog</code> — see everything Git has ever done (recover "lost" commits)<br><code>git bisect start/bad/good</code> — binary search to find which commit introduced a bug<br><code>git cherry-pick abc123</code> — apply one specific commit to current branch',
-        hasAnimation: true
-      },
-
-      quickCheck: {
-        question: 'You committed a secret API key to the main branch by mistake. The commit is already pushed. What is the correct fix?',
-        options: [
-          'git reset --hard HEAD~1 and force push to main',
-          'Just delete the key from the file in a new commit — the old commit is harmless',
-          'git revert the commit (creates a new commit that removes the key), then immediately rotate/invalidate the API key — the old commit still exists in history and should be treated as compromised',
-          'Archive the repository and start a new one'
-        ],
-        correct: 2,
-        explanation: 'This is critical: even after reverting, the secret still exists in git history and should be treated as compromised — rotate it immediately. git revert is the safe way to undo on shared branches because it adds a new commit rather than rewriting history. Never git reset --hard + force push on a shared branch — it breaks teammates\' local copies. After reverting, use a secret scanning tool (git-secrets, detect-secrets) to prevent future leaks.'
-      },
-
-      commands: [
-        {
-          scenario: 'You want to see exactly what changed in the last commit',
-          cmd: 'git show HEAD',
-          question: 'What does HEAD refer to?',
-          options: [
-            'The first commit in the repository',
-            'The name of the current branch',
-            'The most recent commit on your current branch',
-            'The remote origin'
-          ],
-          correct: 2,
-          explanation: 'HEAD is a pointer to the current commit — whatever you checked out most recently. git show HEAD shows the diff and metadata of that commit. HEAD~1 is the commit before it, HEAD~2 is two back. This pointer is what moves when you commit, checkout, or reset.'
-        },
-        {
-          scenario: 'A bug was introduced sometime in the last 50 commits. You want to find exactly which commit caused it.',
-          cmd: 'git bisect start && git bisect bad && git bisect good v1.0',
-          question: 'What strategy does git bisect use?',
-          options: [
-            'Checks every commit one by one from newest to oldest',
-            'Binary search — splits the commit range in half each time, you test and mark good/bad, finds the culprit in ~log2(50) = 6 steps',
-            'Scans code for common bug patterns automatically',
-            'Compares the latest commit to the tagged version'
-          ],
-          correct: 1,
-          explanation: 'Binary search means git bisect finds a bug in 50 commits in only ~6 steps instead of 50. Each step git checks out the middle commit. You test it, mark it good or bad, and git narrows the range. This is one of the most underused and most powerful Git features for debugging production issues.'
-        }
-      ],
-
-      lab: {
-        title: 'Git Workflow for a DevOps Config Change',
-        scenario: 'You are adding a new Kubernetes namespace config to a shared repository. Practice the correct branch, commit, and merge workflow.',
-        laptopSetup: 'Requires Git installed. Run: git --version to verify.',
-        cloudUrl: 'https://learngitbranching.js.org',
-        steps: [
-          { title: 'Create a local test repository', cmd: 'mkdir pipeline-git-lab && cd pipeline-git-lab && git init && git commit --allow-empty -m "initial commit"', expected: 'Initialized empty Git repository', isBreak: false, desc: 'Starting from scratch to practice the full workflow.' },
-          { title: 'Create a feature branch', cmd: 'git checkout -b feature/add-monitoring-namespace', expected: 'Switched to a new branch', isBreak: false, desc: 'Never commit directly to main in a team environment. Always use feature branches.' },
-          { title: 'Add a config file', cmd: 'echo "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: monitoring" > monitoring-ns.yaml && git add monitoring-ns.yaml && git commit -m "feat: add monitoring namespace config"', expected: 'Commit created on feature branch', isBreak: false, desc: 'Conventional commit format: feat/fix/docs/chore: description' },
-          { title: 'See the branch difference', cmd: 'git diff main..feature/add-monitoring-namespace', expected: 'Shows the new file as a diff', isBreak: false, desc: 'Always review your diff before merging or raising a PR.' },
-          { title: 'Merge to main', cmd: 'git checkout main && git merge feature/add-monitoring-namespace --no-ff -m "Merge: add monitoring namespace"', expected: 'Merge commit created', isBreak: false, desc: '--no-ff creates a merge commit even for fast-forwards — preserves branch history, important for audit trails.' },
-          { title: 'Break it — make a bad commit and revert', cmd: 'echo "BROKEN CONFIG" > bad.yaml && git add bad.yaml && git commit -m "accident" && git revert HEAD --no-edit', expected: 'Revert commit created', isBreak: true, desc: 'git revert HEAD creates a new commit undoing the last one. Safe for shared branches. git log --oneline to see the history.' },
-          { title: 'Clean up', cmd: 'cd .. && rm -rf pipeline-git-lab', expected: 'Lab directory removed', isBreak: false, desc: '' }
-        ],
-        learned: ['Create and merge feature branches correctly', 'Write conventional commit messages', 'Safely undo mistakes with git revert vs git reset']
-      }
+    commands:[
+      {cmd:'#!/bin/bash\nset -euo pipefail', desc:'Standard safe script header. -e=exit on error, -u=undefined vars are errors, -o pipefail=catch pipe failures', when:'First three lines of every production shell script', example:'', level:'basic'},
+      {cmd:'VAR=\${INPUT:-"default_value"}', desc:'Use INPUT if set, otherwise use default_value. Prevents scripts from failing when env var is missing', when:'Scripts that accept optional environment variable configuration', example:'', level:'basic'},
+      {cmd:'kubectl get pods -o json | jq -r \".items[].metadata.name\"', desc:'Parse kubectl JSON output with jq to extract just the pod names', when:'Scripting operations that need to loop over pods', example:'nginx-abc123', level:'intermediate'},
+      {cmd:'trap "rm -f /tmp/lockfile; kubectl delete pod debug 2>/dev/null" EXIT', desc:'Always run cleanup on script exit, even if the script fails', when:'Scripts that create temporary resources that must be cleaned up', example:'', level:'intermediate'},
+      {cmd:'for i in $(seq 1 5); do kubectl rollout status deploy/myapp && break || sleep 10; done', desc:'Retry kubectl rollout status up to 5 times with 10 second delay', when:'Waiting for deployments to complete in CI/CD pipelines', example:'Waiting for deployment spec update to be observed...', level:'intermediate'},
+    ],
+    lab:{
+      title:'Write a Kubernetes Deployment Health Check Script',
+      scenario:'Write a reusable script that checks if a K8s deployment is healthy. It should print pass/fail and return exit code 1 on failure so CI/CD pipelines detect it.',
+      cloudUrl:'https://killercoda.com/playgrounds/scenario/kubernetes',
+      steps:[
+        {title:'Create the script', cmd:'cat > health_check.sh << "SCRIPT"\n#!/bin/bash\nset -euo pipefail\n\nDEPLOY=\${1?"Usage: \$0 <deployment> [namespace]"}\nNS=${2:-"default"}\n\necho "Checking $DEPLOY in namespace $NS..."\nSCRIPT', expected:'File created', isBreak:false, desc:'${1?"message"} exits with error if argument 1 is not provided — built-in argument validation.'},
+        {title:'Add the replica health check', cmd:'cat >> health_check.sh << "SCRIPT"\n\nREADY=$(kubectl get deploy $DEPLOY -n $NS -o jsonpath=\'{.status.readyReplicas}\' 2>/dev/null || echo 0)\nDESIRED=$(kubectl get deploy $DEPLOY -n $NS -o jsonpath=\'{.spec.replicas}\' 2>/dev/null || echo 1)\n\n[ "$READY" = "$DESIRED" ] && echo "✅ PASS: $READY/$DESIRED replicas ready" || { echo "❌ FAIL: $READY/$DESIRED replicas ready"; exit 1; }\nSCRIPT\nchmod +x health_check.sh', expected:'Script updated', isBreak:false, desc:'[ "$A" = "$B" ] && success || { failure; exit 1; } is a common one-line if/else pattern.'},
+        {title:'Deploy a test app', cmd:'kubectl create deployment nginx --image=nginx:alpine --replicas=2 2>/dev/null || true\nkubectl rollout status deployment/nginx', expected:'deployment nginx successfully rolled out', isBreak:false, desc:''},
+        {title:'Run health check — should pass', cmd:'./health_check.sh nginx default', expected:'✅ PASS: 2/2 replicas ready', isBreak:false, desc:''},
+        {title:'Simulate a failed deployment', cmd:'kubectl scale deployment nginx --replicas=0\n./health_check.sh nginx default || echo "Exit code: $?"', expected:'❌ FAIL — exit code 1', isBreak:True, desc:'Exit code 1 tells CI/CD systems like Azure Pipelines and GitHub Actions that the step failed. Scale back: kubectl scale deployment nginx --replicas=2'},
+        {title:'Clean up', cmd:'kubectl delete deployment nginx && rm health_check.sh', expected:'Deployment deleted', isBreak:False, desc:''},
+      ]
     },
+    exercises:[
+      {q:'What does set -e do and why is it critical for deployment scripts?', a:'<code>set -e</code> causes the script to exit immediately if any command returns a non-zero exit code. Without it, a failed command (e.g. kubectl apply failing because of a syntax error) is silently ignored and the script continues — potentially leaving infrastructure in a broken half-deployed state. Always pair with <code>set -o pipefail</code> which catches failures inside pipes (without it, <code>bad_command | grep something</code> succeeds even if bad_command fails).', level:'basic'},
+      {q:'How do you pass arguments to a shell script and validate they exist?', a:'Arguments are accessed as $1, $2, etc. Validate with: <code>\${1?"Error: argument 1 required"}</code> — this exits with an error message if $1 is not provided. Or: <code>if [ $# -lt 2 ]; then echo "Usage: $0 arg1 arg2"; exit 1; fi</code>. For named parameters use <code>while getopts "n:e:" opt; do</code> (getopts built-in).', level:'intermediate'},
+      {q:'Write a one-liner that waits for a URL to return HTTP 200, retrying every 5 seconds.', a:'<code>until curl -sf http://localhost:8080/health; do echo "Waiting..."; sleep 5; done; echo "Service is up"</code>. The -s flag suppresses output, -f flag makes curl return exit code 22 on HTTP errors (4xx/5xx). <code>until</code> keeps looping until the command succeeds. Add a timeout: <code>TIMEOUT=60; START=$SECONDS; until curl -sf $URL || [ $((SECONDS-START)) -ge $TIMEOUT ]; do sleep 5; done</code>', level:'intermediate'},
+    ],
+    interview:[
+      {q:'How do you handle errors in shell scripts to prevent silent failures?', level:'intermediate',
+       a:'Three layers: 1. <code>set -e</code> — exit on any command failure. 2. <code>set -o pipefail</code> — exit on pipe failures. 3. <code>trap "cleanup_function" ERR EXIT</code> — run cleanup on errors or exit. For individual commands where failure is expected: <code>kubectl get pod mypod 2>/dev/null || echo "Pod not found"</code>. Log errors with timestamps: <code>error() { echo "[ERROR $(date +%T)] $*" >&2; exit 1; }</code>. The >&2 sends to stderr, not stdout.',
+       trap:'Just saying "use set -e." Production scripts also need pipefail, trap for cleanup, and meaningful error messages with timestamps.'},
+    ],
+    resources:[
+      {label:'ShellCheck — find bugs in your bash scripts online', url:'https://www.shellcheck.net'},
+      {label:'Google Shell Style Guide', url:'https://google.github.io/styleguide/shellguide.html'},
+    ]
+  },
 
-    // ── LESSON F5 ──────────────────────────────────────────
-    {
-      id: 'f5-git-branching-strategies',
-      title: 'Git Branching Strategies',
-      subtitle: 'How teams ship code without chaos',
-      time: '30 min',
-      type: 'concept',
-      certs: ['az400'],
-      xp: 80,
-      animationId: 'git-branching',
-
-      concept: {
-        plain: 'A branching strategy is a set of rules your team follows for how to name branches, when to merge them, and how to get code from a developer\'s laptop to production. Without a strategy, every team member does something different and deployments become unpredictable.',
-        analogy: 'Imagine a restaurant kitchen without a system for how orders flow from table to kitchen to plate. Some chefs grab random tickets, others wait for verbal instructions. Orders get lost, duplicated, or cooked twice. A branching strategy is the kitchen\'s ticket system — everyone knows exactly where a dish is in its journey and whose responsibility it is at each stage.',
-        technical: '<strong>Trunk-Based Development (TBD) — preferred for CI/CD:</strong><br>Everyone commits to main (the "trunk") frequently (at least daily). Short-lived feature branches (max 1-2 days) merged via PR. Feature flags control what users see. Why it wins: forces frequent integration, finds conflicts early, CI/CD pipelines are simple (only one long-lived branch). Used by Google, Facebook, Netflix.<br><br><strong>Gitflow — common in enterprises:</strong><br>Branches: main (production), develop (integration), feature/* (new work), release/* (prep for deployment), hotfix/* (urgent prod fixes). More structured, suits teams with scheduled release cycles. Downside: long-lived branches cause integration hell, slow CI/CD.<br><br><strong>GitHub Flow — simple middle ground:</strong><br>main is always deployable. Feature branches → PR → merge to main → auto-deploy. No develop branch. Simple and works well for most teams.<br><br><strong>What interviewers want to hear:</strong> "I prefer trunk-based development with feature flags for larger changes because it keeps CI/CD pipelines simple and forces the team to integrate frequently. We used Gitflow at [company] but found the long-lived branches caused painful merges before each release."',
-        hasAnimation: true
-      },
-
-      quickCheck: {
-        question: 'Your team is moving to CI/CD with automated deployments on every merge to main. Which branching strategy is the best fit?',
-        options: [
-          'Gitflow — because it has a dedicated release branch for controlled deployments',
-          'Trunk-Based Development — short-lived feature branches, merge to main daily, feature flags for incomplete work, simple CI/CD pipeline triggered on every main commit',
-          'Create a new branch per environment (dev-branch, staging-branch, prod-branch)',
-          'Each developer has their own long-lived branch'
-        ],
-        correct: 1,
-        explanation: 'Trunk-Based Development is the natural fit for CI/CD because there is only one branch that deploys to production. Every merge triggers the pipeline. Gitflow\'s multiple long-lived branches mean you need separate pipelines for develop, release, and main — and merging between them becomes a bottleneck. Environment branches (dev-branch, staging-branch) are an anti-pattern that causes drift between environments.'
-      },
-
-      commands: [
-        {
-          scenario: 'You are using trunk-based development. You need a small change deployed in 2 hours but do not want to block it with a feature flag.',
-          cmd: 'git checkout -b fix/update-timeout-config && git commit -m "fix: increase DB timeout to 30s" && git push && gh pr create --base main',
-          question: 'In trunk-based development, how long should this branch live?',
-          options: [
-            'Until the next sprint ends',
-            'Hours to 1-2 days maximum — short-lived branches are the core principle. Merge and delete after PR is approved.',
-            'Until the release date',
-            'Indefinitely, kept up to date with main via rebase'
-          ],
-          correct: 1,
-          explanation: 'Short-lived branches (hours to max 2 days) are the core discipline of trunk-based development. Long-lived branches accumulate divergence from main, causing painful merge conflicts and delaying integration. If your feature takes more than 2 days, use a feature flag to hide the incomplete work in main, rather than keeping a long branch open.'
-        }
-      ],
-
-      lab: null
+  {
+    id:'f3-git', title:'Git & Version Control', subtitle:'Every pipeline starts with git push',
+    time:'45 min', type:'concept', certs:['az400','aws'], xp:100, animationId:'git-branching',
+    concept:{
+      plain:'Git tracks every change you make to files, lets you go back to any version, and enables teams to work in parallel without overwriting each other. It is the trigger for every CI/CD pipeline.',
+      analogy:'Git is a time machine for your work. Every commit is a save point. Branches are parallel universes where you can experiment safely — the original stays untouched. Merging brings the best of two universes together. The reflog is the time machine\'s history log — you can recover almost anything.',
+      technical:`<strong>Core workflow:</strong> clone → add → commit → push → pull<br>
+<code>git clone url</code>, <code>git status</code>, <code>git add -A</code>, <code>git commit -m "type: message"</code>, <code>git push origin branch</code><br><br>
+<strong>Branching:</strong><br>
+<code>git checkout -b feature/name</code> — create + switch<br>
+<code>git merge feature/name</code> — merge (preserves history with merge commit)<br>
+<code>git rebase main</code> — replay commits on tip of main (linear history, rewrites SHAs)<br><br>
+<strong>Undoing:</strong><br>
+<code>git revert HEAD</code> — undo last commit by adding new commit (SAFE for shared branches)<br>
+<code>git reset --hard HEAD~1</code> — delete last commit and changes (DANGEROUS, local branches only)<br>
+<code>git stash / git stash pop</code> — temporarily save uncommitted work<br><br>
+<strong>Advanced:</strong><br>
+<code>git reflog</code> — recover anything — shows every HEAD move ever<br>
+<code>git bisect</code> — binary search to find bug-introducing commit<br>
+<code>git cherry-pick abc123</code> — apply one commit from any branch<br>
+<code>git log --oneline --graph --all</code> — visual history`
     },
+    commands:[
+      {cmd:'git log --oneline --graph --all', desc:'Show compact visual history of all branches as a graph', when:'Understanding branch structure and reviewing recent history', example:'* abc123 feat: add ingress\n* def456 fix: probe', level:'basic'},
+      {cmd:'git checkout -b feature/add-monitoring', desc:'Create a new branch and switch to it in one command', when:'Starting any new feature or fix — never commit directly to main', example:'Switched to a new branch', level:'basic'},
+      {cmd:'git stash && git checkout main && git stash pop', desc:'Save work, switch to main, restore work — all without committing', when:'Urgent fix needed while mid-feature', example:'Saved working directory', level:'intermediate'},
+      {cmd:'git revert HEAD --no-edit', desc:'Undo last commit by creating a new commit — safe for shared branches, preserves history', when:'Fixing a bad commit that has already been pushed to main', example:'[main abc789] Revert bad commit', level:'intermediate'},
+      {cmd:'git bisect start && git bisect bad HEAD && git bisect good v1.2', desc:'Start binary search to find which commit introduced a bug. Git checks out midpoints, you test and mark good/bad', when:'Bug appeared sometime in the last N commits and you need to find exactly when', example:'First bad commit is: abc123', level:'advanced'},
+      {cmd:'git cherry-pick abc123..def456', desc:'Apply a range of commits from another branch to current branch', when:'Backporting specific bug fixes to a release branch', example:'Applied commits successfully', level:'advanced'},
+    ],
+    lab:{
+      title:'Professional Git Workflow for a DevOps Config Change',
+      scenario:'Practise the complete branch → commit → review → merge workflow that professional teams use. This mirrors daily work at companies using GitHub/Azure DevOps.',
+      cloudUrl:'https://learngitbranching.js.org',
+      steps:[
+        {title:'Set up a local repo', cmd:'mkdir pz-git && cd pz-git && git init && git config user.email "you@example.com" && git config user.name "DevOps" && git commit --allow-empty -m "init"', expected:'Initialized empty Git repository', isBreak:false, desc:''},
+        {title:'Create feature branch', cmd:'git checkout -b feat/add-monitoring-namespace', expected:'Switched to a new branch feat/add-monitoring-namespace', isBreak:false, desc:'Never work directly on main. Branch names should describe what the change does.'},
+        {title:'Create a K8s config and commit', cmd:'printf "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: monitoring\n  labels:\n    team: platform" > monitoring-ns.yaml && git add . && git commit -m "feat: add monitoring namespace with platform label"', expected:'1 file changed', isBreak:false, desc:'Conventional commit format: type(scope): description. Types: feat, fix, docs, chore, refactor, test'},
+        {title:'Review what you are about to merge', cmd:'git diff main..feat/add-monitoring-namespace', expected:'Shows your new file as a diff', isBreak:false, desc:'Always review the diff before merging. This is what a code reviewer sees in a PR.'},
+        {title:'Merge to main', cmd:'git checkout main && git merge feat/add-monitoring-namespace --no-ff -m "Merge: add monitoring namespace"', expected:'Merge commit created', isBreak:false, desc:'--no-ff creates a merge commit even if fast-forward is possible. This preserves branch history in the log.'},
+        {title:'Break it then fix it with revert', cmd:'echo "BROKEN_CONFIG" >> monitoring-ns.yaml && git add . && git commit -m "mistake: broke the config"\ngit log --oneline\ngit revert HEAD --no-edit\ngit log --oneline', expected:'Revert commit visible, original commit still in history', isBreak:True, desc:'Notice: both the mistake AND the revert are visible in history. This is correct — full audit trail. Never use reset --hard on shared branches.'},
+        {title:'Clean up', cmd:'cd .. && rm -rf pz-git', expected:'', isBreak:false, desc:''},
+      ]
+    },
+    exercises:[
+      {q:'What is the difference between git merge and git rebase? When should you use each?', a:'<strong>Merge</strong> creates a merge commit joining two branches — history shows exactly when branches diverged and merged. Preserves the full picture. <strong>Rebase</strong> replays your commits on top of the target — creates linear history with no merge commit, but rewrites commit SHAs. Use rebase for: cleaning up your local feature branch before a PR (makes it easier to review). Use merge for: integrating branches into main, hotfixes. Rule: never rebase shared branches (main, develop) — you rewrite SHAs that others have already pulled.', level:'intermediate'},
+      {q:'You accidentally committed and pushed a secret (API key) to main. What do you do?', a:'Step 1 (IMMEDIATE): Rotate/invalidate the API key right now — assume it is already compromised. Git history is public/accessible. Step 2: <code>git revert HEAD</code> and push — this removes the key from the latest code. Step 3: The key still exists in git history. To fully remove: use BFG Repo Cleaner (<code>bfg --replace-text secrets.txt repo.git</code>) then force push. Step 4: Enable secret scanning (GitHub has it built-in, Azure DevOps has it as a setting) to prevent this happening again.', level:'intermediate'},
+      {q:'What does git reflog do and when would you use it?', a:'reflog is a log of every HEAD movement — every checkout, commit, reset, merge, rebase, and pull. It is your safety net. Use it when: you did <code>git reset --hard</code> and lost commits, you deleted a branch you needed, you rebased and made a mess. <code>git reflog</code> shows the SHA of every state HEAD was in. Then <code>git checkout abc123</code> or <code>git branch recovered abc123</code> to get it back. Git keeps reflog entries for at least 90 days.', level:'intermediate'},
+    ],
+    interview:[
+      {q:'What is the difference between git revert and git reset --hard?', level:'intermediate',
+       a:'<code>git revert</code> creates a new commit that undoes a previous commit — history is preserved, the original commit is still visible, teammates who already pulled are not affected. SAFE for shared/remote branches. <code>git reset --hard</code> moves the HEAD pointer back, deleting commits from history. If those commits were already pushed, this creates diverged history and breaks everyone else\'s copy of the branch. ONLY use reset --hard on local branches you have not pushed yet.',
+       trap:'Not mentioning the shared branch problem. In interviews this distinction is specifically tested — using reset --hard on a shared branch is a common team-wrecking mistake.'},
+    ],
+    resources:[
+      {label:'Learn Git Branching — visual interactive', url:'https://learngitbranching.js.org'},
+      {label:'Conventional Commits specification', url:'https://www.conventionalcommits.org'},
+    ]
+  },
 
-    // ── LESSON F6 ──────────────────────────────────────────
-    {
-      id: 'f6-networking-fundamentals',
-      title: 'Networking Fundamentals for DevOps',
-      subtitle: 'TCP/IP, DNS, TLS — the pipes everything flows through',
-      time: '60 min',
-      type: 'concept',
-      certs: ['cka', 'az400', 'lfcs'],
-      xp: 120,
+  {
+    id:'f4-networking', title:'Networking Fundamentals for DevOps', subtitle:'TCP/IP, DNS, TLS, HTTP — the pipes everything flows through',
+    time:'60 min', type:'concept', certs:['cka','az400'], xp:120,
+    concept:{
+      plain:'Everything in DevOps moves through a network. Deployments, app traffic, monitoring data, database connections. Understanding how data travels between machines is essential for debugging connectivity issues and designing reliable systems.',
+      analogy:'The internet is a postal system. IP address = street address. Port = apartment number. DNS = the phonebook that converts "google.com" into a street address. TCP = registered mail — tracked and guaranteed. UDP = dropping a flyer through a letterbox — fast, no confirmation. TLS = a tamper-proof sealed envelope — only the recipient can open it. A load balancer = a sorting office that distributes incoming mail across multiple delivery teams.',
+      technical:`<strong>OSI layers that matter for DevOps:</strong><br>
+L3 = IP (routing between machines), L4 = TCP/UDP (ports, sessions), L7 = HTTP (application)<br>
+<em>K8s Services are L4. K8s Ingress is L7. This distinction is critical.</em><br><br>
+<strong>TCP 3-way handshake:</strong> SYN → SYN-ACK → ACK. Every TCP connection begins this way.<br><br>
+<strong>DNS resolution chain:</strong> Browser cache → OS /etc/hosts → OS DNS cache → Recursive resolver → Root (.) → TLD (.com) → Authoritative server → IP returned. TTL controls cache lifetime.<br><br>
+<strong>HTTP status codes:</strong> 200=OK, 201=Created, 301/302=Redirect, 400=Bad Request, 401=Unauthorized, 403=Forbidden, 404=Not Found, 429=Rate Limited, 500=Server Error, 502=Bad Gateway, 503=Service Unavailable, 504=Gateway Timeout<br><br>
+<strong>TLS handshake:</strong> Client hello (supported ciphers) → Server cert (public key + CA signature) → Client verifies CA → Key exchange → Symmetric session key agreed → Encrypted channel established<br><br>
+<strong>CIDR:</strong> 10.0.0.0/24 = 256 IPs. /16 = 65536 IPs. /32 = 1 IP. K8s defaults: pods=10.244.0.0/16, services=10.96.0.0/12`
+    },
+    commands:[
+      {cmd:'curl -v https://api.example.com 2>&1 | head -40', desc:'Verbose HTTP request showing DNS resolution, TLS handshake, headers, response', when:'Diagnosing HTTPS connectivity and certificate issues', example:'* Connected\n* TLS handshake\n< HTTP/2 200', level:'basic'},
+      {cmd:'curl -o /dev/null -s -w "%{http_code} %{time_total}s" http://svc:8080/health', desc:'Return only HTTP status code and total request time — perfect for health check scripts', when:'CI/CD health checks, smoke tests after deployment', example:'200 0.043s', level:'intermediate'},
+      {cmd:'dig +short my-service.default.svc.cluster.local', desc:'DNS lookup for a K8s service using cluster DNS format. +short shows just the IP', when:'Verifying K8s service DNS resolution is working', example:'10.96.123.45', level:'intermediate'},
+      {cmd:'nc -zv db.internal 5432 && echo "DB port open"', desc:'Test TCP port 5432 is reachable without needing the database client', when:'Pre-flight checks before deploying apps that need database access', example:'Connection to db.internal 5432 succeeded', level:'basic'},
+      {cmd:'ss -tulpn | grep LISTEN', desc:'Show all listening TCP/UDP ports with process names — faster and more accurate than netstat', when:'Port conflict debugging, security auditing what services are exposed', example:'tcp LISTEN 0 128 *:8080 users:((java,pid=1234))', level:'basic'},
+    ],
+    exercises:[
+      {q:'A pod cannot reach a service in the same namespace. Walk through your debug steps.', a:'In order: 1. <code>kubectl exec pod -- nslookup service-name</code> — does DNS resolve to an IP? 2. <code>kubectl exec pod -- nc -zv service-name PORT</code> — is the port reachable? 3. <code>kubectl get endpoints service-name</code> — does the service have healthy pod IPs? Empty endpoints = all pods failing readiness probes. 4. <code>kubectl get networkpolicy</code> — is there a NetworkPolicy blocking the traffic? 5. Check the Service selector matches the pod labels: <code>kubectl get svc service-name -o yaml</code> vs <code>kubectl get pod pod-name --show-labels</code>', level:'intermediate'},
+      {q:'What is the difference between HTTP 502 and 503?', a:'502 Bad Gateway: the proxy/load balancer got an invalid response from the upstream server. The upstream is running but returning garbage, timing out, or returning non-HTTP responses. Often means the app is crashing (returning partial responses) or the wrong port is configured. 503 Service Unavailable: the server is intentionally refusing requests — typically because all upstream pods are down or failing health checks, so the load balancer has no healthy backends to send traffic to. In K8s: 502 = pod running but app broken. 503 = Service has no healthy endpoints.', level:'intermediate'},
+      {q:'What does a DNS TTL of 300 mean and why does it matter for deployments?', a:'TTL=300 means DNS resolvers cache this record for 300 seconds (5 minutes). After you change a DNS record, it takes UP TO the TTL for all clients to see the new value. Best practice for DNS migrations: 1. Lower TTL to 60 (or 30) a few hours before the change. 2. Make the DNS change. 3. Wait TTL seconds for propagation. 4. Raise TTL back to normal. If you change DNS with TTL=86400 (24h), some users may get the old IP for up to 24 hours.', level:'intermediate'},
+    ],
+    interview:[
+      {q:'What is the difference between a K8s Service LoadBalancer and Ingress?', level:'intermediate',
+       a:'Service LoadBalancer is Layer 4 — it provisions a cloud load balancer (Azure LB, AWS NLB) that exposes a TCP/UDP port. One cloud LB per service. Expensive if you have 20 services. Works for any protocol (not just HTTP). Ingress is Layer 7 HTTP routing — one cloud LB for all services. The Ingress controller routes traffic based on HTTP hostname and URL path. Also handles TLS termination via cert-manager. Production pattern: use LoadBalancer only for non-HTTP protocols (databases, raw TCP). All HTTP/HTTPS services go behind a single Ingress. This reduces cloud LB costs from 20x to 1x.',
+       trap:'Saying they do the same thing. The L4 vs L7 distinction is a very common interview question and the cost/architecture implications are what interviewers want to hear.'},
+    ],
+    resources:[
+      {label:'Cloudflare Learning Center — free networking', url:'https://www.cloudflare.com/learning'},
+    ]
+  },
 
-      concept: {
-        plain: 'Everything in DevOps moves through a network — your code deployments, your app\'s traffic, your monitoring data, your database connections. Understanding how data travels from one machine to another is essential for debugging connectivity issues and designing systems.',
-        analogy: 'The internet is a postal system. An IP address is a street address. A port is the apartment number in the building. DNS is the phonebook that converts a name like "google.com" into a street address. TCP is registered mail — tracked, guaranteed delivery with confirmation. UDP is posting a flyer through the letterbox — fast, no confirmation, some get lost. TLS is a tamper-proof sealed envelope — only the recipient can open it. A load balancer is a sorting office that distributes mail across multiple delivery teams.',
-        technical: '<strong>OSI model (the critical layers):</strong><br>Layer 3 = IP (routing between machines), Layer 4 = TCP/UDP (ports, sessions, reliability), Layer 7 = HTTP (application — your API traffic). This matters because Kubernetes Services are Layer 4 and Ingress is Layer 7.<br><br><strong>TCP 3-way handshake:</strong> SYN → SYN-ACK → ACK. Every TCP connection starts this way. TIME_WAIT state means connection is closing.<br><br><strong>DNS resolution chain:</strong> Browser cache → OS hosts file (/etc/hosts) → OS DNS cache → DNS resolver → Root nameservers → TLD (.com) → Authoritative nameserver → IP returned. TTL controls how long each level caches the result.<br><br><strong>HTTP:</strong> Methods (GET/POST/PUT/DELETE/PATCH), Status codes (200 OK, 201 Created, 301 Redirect, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error, 503 Service Unavailable), Headers (Content-Type, Authorization, X-Request-ID)<br><br><strong>TLS/HTTPS:</strong> Client hello → Server sends certificate (public key + identity signed by CA) → Client verifies CA signature → Key exchange → Symmetric encryption for session. Certificate = public key signed by a trusted Certificate Authority.<br><br><strong>CIDR notation:</strong> 10.0.0.0/24 = 256 IPs (.0 to .255). /16 = 65,536 IPs. /32 = exactly 1 IP. K8s pod CIDR is typically 10.244.0.0/16.<br><br><strong>Load balancing:</strong> Layer 4 (TCP): routes by IP+port, very fast, no HTTP awareness. Layer 7 (HTTP): routes by URL path, hostname, headers — can route /api to API pods and /static to CDN. K8s Service = L4. K8s Ingress = L7.',
-        hasAnimation: false
-      },
+  {
+    id:'f5-git-branching', title:'Git Branching Strategies', subtitle:'How teams ship code without chaos',
+    time:'30 min', type:'concept', certs:['az400'], xp:80, animationId:'git-branching',
+    concept:{
+      plain:'A branching strategy is the set of rules your team follows: how to name branches, when to merge, and how code travels from a developer\'s laptop to production. Without one, releases are stressful and unpredictable.',
+      analogy:'Think of a restaurant without a ticket system for orders. Chefs grab random tickets, some orders get made twice, others get lost. A branching strategy is the kitchen\'s ticket system — every dish (change) follows a defined path from order (commit) to service (production), and everyone knows whose responsibility it is at each stage.',
+      technical:`<strong>Trunk-Based Development (TBD) — best for CI/CD:</strong><br>
+Everyone commits to main (trunk) at least daily. Feature branches exist but are short-lived: hours to 2 days maximum. Large incomplete features use feature flags (if/else controlled by config). CI/CD pipeline only needs to watch one branch. Used by Google, Netflix, Spotify. Requires: automated testing you trust, feature flag infrastructure.<br><br>
+<strong>GitHub Flow — practical default:</strong><br>
+main is always deployable. Create branch → PR → review → merge → auto-deploy. No develop branch. Simple, works for most teams.<br><br>
+<strong>Gitflow — for scheduled releases:</strong><br>
+main (production), develop (integration), feature/*, release/*, hotfix/*. More overhead but suits teams with fixed release windows. Downside: long-lived branches cause big merge conflicts.<br><br>
+<strong>Branch naming convention:</strong><br>
+<code>feat/JIRA-123-add-monitoring</code>, <code>fix/resolve-memory-leak</code>, <code>chore/update-base-image</code>, <code>hotfix/critical-auth-bypass</code>`
+    },
+    commands:[
+      {cmd:'git checkout -b feat/TICKET-123-add-ingress', desc:'Create a descriptively named feature branch. Include ticket number for traceability', when:'Starting any change — branch first, commit later', example:'Switched to a new branch', level:'basic'},
+      {cmd:'git pull --rebase origin main', desc:'Update your branch by replaying your commits on top of the latest main — keeps history clean', when:'Before raising a PR to avoid unnecessary merge commits', example:'Successfully rebased', level:'intermediate'},
+    ],
+    exercises:[
+      {q:'Your team is adopting CI/CD with auto-deploy on merge to main. Which strategy fits best?', a:'Trunk-Based Development. Only one branch (main) triggers the pipeline. Short-lived feature branches (< 2 days) mean no painful merge conflicts. Developers integrate daily so broken code surfaces immediately rather than at release time. Gitflow would require separate pipelines for develop, release, and main branches, and the long-lived branches would cause painful merges before each release.', level:'intermediate'},
+      {q:'A developer keeps a feature branch open for 3 weeks. What problems does this cause?', a:'1. Merge conflicts: main has moved on for 3 weeks. Merging will be painful. 2. Integration risk: the 3-week-old code has not been tested against what others built. 3. PR size: nobody wants to review 3 weeks of code properly. 4. CI/CD bypass: the long-lived branch has been running outdated pipelines. Solution: use feature flags to merge incomplete features to main in small daily increments. The feature is hidden from users until the flag is turned on.', level:'intermediate'},
+    ],
+    interview:[
+      {q:'What is a feature flag and how does it enable trunk-based development?', level:'advanced',
+       a:'A feature flag is a runtime conditional: <code>if featureFlags.newDashboard { showNew() } else { showOld() }</code>. The flag value comes from a config system or env var, not hardcoded. This allows incomplete features to be merged to main (flag=false by default), letting developers commit daily without showing users unfinished work. When the feature is ready, turn the flag on in production — no code deployment needed. Feature flags also enable: canary releases (turn on for 5% of users), A/B testing, and instant rollback (just turn the flag off).',
+       trap:'Saying feature flags are only for A/B testing. The primary use case is enabling trunk-based development and safe deployments — A/B testing is a secondary benefit.'},
+    ],
+    resources:[
+      {label:'Trunk Based Development — trunkbaseddevelopment.com', url:'https://trunkbaseddevelopment.com'},
+    ]
+  },
 
-      quickCheck: {
-        question: 'A K8s pod reports it cannot resolve "my-service.default.svc.cluster.local". The service exists. What is the most likely cause?',
-        options: [
-          'The service port is wrong',
-          'CoreDNS (the cluster DNS server) is not running or the pod\'s DNS config points to a wrong resolver',
-          'The pod does not have enough memory',
-          'The service needs to be restarted'
-        ],
-        correct: 1,
-        explanation: 'K8s DNS resolution goes through CoreDNS. Every pod is configured to use the CoreDNS ClusterIP as its DNS server (check /etc/resolv.conf inside the pod). If CoreDNS is crashing or the pod\'s /etc/resolv.conf has the wrong nameserver IP, DNS lookups fail. Diagnose: kubectl get pods -n kube-system | grep coredns, then kubectl exec -it failing-pod -- cat /etc/resolv.conf to verify the nameserver.'
-      },
+  {
+    id:'f6-linux-networking', title:'Linux Networking Tools', subtitle:'Diagnose any connectivity issue in minutes',
+    time:'40 min', type:'concept', certs:['lfcs','cka'], xp:100,
+    concept:{
+      plain:'When an app cannot reach a database or a K8s pod cannot talk to a service, Linux networking tools let you trace exactly where the connection is breaking — which port, which DNS name, which network hop.',
+      analogy:'Linux networking tools are a doctor\'s diagnostic kit. ss is the stethoscope — listen to which ports the body is using. curl is the test patient you send through the system to check if they come out healthy. dig is the DNS specialist. tcpdump is the X-ray — you see every packet. You do not use all of them every time, but you need to know which one to reach for.',
+      technical:`<strong>ss — socket statistics (replaces netstat):</strong><br>
+<code>ss -tulpn</code> — all TCP/UDP listening ports with process name<br>
+<code>ss -tnp state established</code> — all active connections<br><br>
+<strong>curl:</strong><br>
+<code>curl -v url</code> — verbose: shows DNS, TCP connect, TLS, headers, body<br>
+<code>curl -I url</code> — headers only (faster)<br>
+<code>curl -o /dev/null -s -w "%{http_code} %{time_total}s" url</code> — status + timing<br>
+<code>curl -k url</code> — ignore TLS cert (testing only!)<br><br>
+<strong>dig — DNS lookup:</strong><br>
+<code>dig +short google.com</code> — just the IP<br>
+<code>dig @coredns-ip svc.namespace.svc.cluster.local</code> — test K8s cluster DNS<br><br>
+<strong>nc — netcat (port tester):</strong><br>
+<code>nc -zv host 5432</code> — test TCP port without needing the actual client<br><br>
+<strong>tcpdump — packet capture:</strong><br>
+<code>tcpdump -i eth0 port 8080 -nn -c 100</code> — capture 100 packets on port 8080`
+    },
+    commands:[
+      {cmd:'ss -tulpn | grep :8080', desc:'Find which process owns port 8080', when:'Debugging port conflicts before starting a service', example:'tcp LISTEN *:8080 users:((java,pid=4321))', level:'basic'},
+      {cmd:'kubectl exec -it pod -- curl -s http://service-name:80/health', desc:'Test HTTP connectivity from inside a pod using real cluster DNS and routing', when:'Diagnosing pod-to-service issues — the only accurate test', example:'{"status":"healthy"}', level:'intermediate'},
+      {cmd:'kubectl exec -it pod -- nslookup service-name.namespace.svc.cluster.local', desc:'Test Kubernetes DNS resolution from inside the cluster', when:'Diagnosing DNS failures — CoreDNS issues or wrong service name', example:'Address: 10.96.45.67', level:'intermediate'},
+    ],
+    exercises:[
+      {q:'Why must you test K8s service connectivity from inside a pod rather than from your laptop?', a:'K8s cluster DNS (.svc.cluster.local names) is only resolvable inside the cluster — your laptop uses a completely different DNS resolver. K8s service IPs (ClusterIP range like 10.96.0.0/12) are not routable from outside the cluster. NetworkPolicies apply to pod-to-pod traffic, not to your laptop. Testing from inside the pod uses the exact same DNS, network namespace, and routing rules that the application uses. Testing from your laptop bypasses all of this and gives a false result.', level:'intermediate'},
+      {q:'A service returns HTTP 502 intermittently (every 1 in 5 requests). How do you diagnose which pod is the problem?', a:'1. Check endpoint count: <code>kubectl get endpoints svc-name</code> — if 5 pods, one might be unhealthy. 2. Loop and test: <code>for i in $(seq 1 20); do curl -o /dev/null -s -w "%{http_code}\n" http://svc:8080; done</code> — see if 502s appear at a fixed interval (suggesting round-robin to a broken pod). 3. Get pod readiness: <code>kubectl get pods -l app=myapp</code> — check READY column. 4. Check individual pod: <code>kubectl logs bad-pod-name</code> + <code>kubectl describe pod bad-pod-name</code> for probe failures.', level:'advanced'},
+    ],
+    interview:[
+      {q:'What command shows which process is listening on port 8080 on a Linux server?', level:'basic',
+       a:'<code>ss -tulpn | grep :8080</code> — shows TCP/UDP listening ports with process name and PID. Alternatively: <code>lsof -i :8080</code> which shows file handles including network ports. The old command <code>netstat -tulpn</code> still works but netstat (net-tools) is deprecated and not installed by default on modern Linux distributions (RHEL 8+, Ubuntu 20.04+). Using ss shows you know current tooling.',
+       trap:'Only mentioning netstat. On modern systems ss is the correct answer, and not knowing this signals outdated knowledge.'},
+    ],
+    resources:[
+      {label:'Julia Evans — how DNS works', url:'https://jvns.ca/blog/2020/11/17/dns-is-hard/'},
+    ]
+  }
 
-      commands: [
-        {
-          scenario: 'You want to test DNS resolution for a K8s service from inside a pod',
-          cmd: 'kubectl exec -it mypod -- nslookup my-service.default.svc.cluster.local',
-          question: 'Why test DNS from inside the pod instead of from your laptop?',
-          options: [
-            'It is faster',
-            'The pod uses the cluster\'s CoreDNS and its own /etc/resolv.conf — the test must happen from inside to reflect actual DNS behaviour that the app experiences',
-            'nslookup only works inside pods',
-            'Your laptop cannot run nslookup'
-          ],
-          correct: 1,
-          explanation: 'K8s cluster DNS (CoreDNS) is only accessible from inside the cluster. Your laptop uses a completely different DNS resolver and cannot resolve .svc.cluster.local names. Testing from inside the pod is the only way to reproduce what the application actually experiences. This is a core debugging principle: test at the same layer and location as the actual traffic.'
-        },
-        {
-          scenario: 'You want to understand what HTTP status code a service returns before writing a health check',
-          cmd: 'curl -o /dev/null -s -w "%{http_code}" http://my-service:8080/health',
-          question: 'What does this curl command output?',
-          options: [
-            'The full HTTP response body',
-            'Only the HTTP status code (e.g. 200, 503) — nothing else. -o /dev/null discards body, -s silent mode, -w prints the format string',
-            'The response headers only',
-            'The DNS resolution time'
-          ],
-          correct: 1,
-          explanation: 'This one-liner is extremely useful in health check scripts: -o /dev/null sends the response body to /dev/null (discards it), -s suppresses progress output, -w "%{http_code}" prints just the status code. Use it like: STATUS=$(curl -o /dev/null -s -w "%{http_code}" url); if [ "$STATUS" != "200" ]; then echo "UNHEALTHY"; fi'
-        }
-      ],
-
-      lab: null
-    }
-
-  ] // end lessons
-}; // end FOUNDATION_DATA
+  ]
+};
