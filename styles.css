@@ -230,9 +230,11 @@ code, pre { font-family: var(--mono); }
 /* ── RIGHT PANEL (content) ── */
 .right-panel {
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--bg);
-  display: flex;
-  flex-direction: column;
+  display: block;
+  min-width: 0;
+  height: calc(100vh - 56px);
 }
 
 /* ============================================================
@@ -241,14 +243,14 @@ code, pre { font-family: var(--mono); }
 
 .screen {
   display: none;
-  flex: 1;
   padding: 32px;
-  max-width: 860px;
+  max-width: 900px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
   animation: screenIn 0.3s ease;
 }
-.screen.active { display: flex; flex-direction: column; }
+.screen.active { display: block; }
 
 @keyframes screenIn {
   from { opacity: 0; transform: translateY(12px); }
@@ -1091,9 +1093,10 @@ code, pre { font-family: var(--mono); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
-  margin-top: auto;
+  padding: 20px 0 8px;
+  margin-top: 24px;
   gap: 12px;
+  border-top: 1px solid var(--border);
 }
 .btn-prev {
   display: flex;
