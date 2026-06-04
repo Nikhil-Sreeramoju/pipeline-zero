@@ -1,84 +1,274 @@
-# PipelineZero 🚀
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="PipelineZero — From zero to production-ready DevOps engineer. 88 lessons covering Kubernetes, Docker, CI/CD, Terraform, Python, and more.">
+<title>PipelineZero — DevOps from Zero to Production-Ready</title>
+<link rel="stylesheet" href="styles.css">
+<!-- Favicon inline SVG -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230b0f1a'/><text x='16' y='22' text-anchor='middle' font-size='18' font-family='monospace' fill='%233b82f6'>P</text><text x='25' y='22' text-anchor='middle' font-size='11' font-family='monospace' fill='%2310b981'>0</text></svg>">
+</head>
+<body>
 
-**From zero to production-ready — your complete DevOps learning platform**
+<div class="app">
 
-Live at: [https://nikhil-sreeramoju.github.io/pipeline-zero](https://nikhil-sreeramoju.github.io/pipeline-zero)
+  <!-- ══ TOPBAR ══════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-logo" id="btn-home" style="cursor:pointer" title="Home">
+      Pipeline<span class="zero">Zero</span>
+    </div>
 
----
+    <div class="topbar-progress">
+      <div class="topbar-progress-labels">
+        <span>Progress</span>
+        <span id="topbar-progress-label">0 / 88 lessons</span>
+      </div>
+      <div class="topbar-progress-bar">
+        <div class="topbar-progress-fill" id="topbar-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
 
-## What is PipelineZero?
+    <div class="topbar-streak" title="Daily study streak">
+      🔥 <span id="topbar-streak-count">0</span>
+    </div>
 
-PipelineZero is a structured, interactive DevOps learning platform covering 88 lessons across 16 topics — built for 2026 market requirements.
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text3);font-family:var(--mono)" id="topbar-xp">0 XP</span>
+      <button class="btn-map active" id="btn-map" title="Toggle topic map">
+        🗺 Map
+      </button>
+    </div>
+  </header>
 
-**Tier 1 — Core Skills:** Foundation (Linux, Git, Networking) → Docker → Kubernetes (22 lessons, scratch to advanced) → CI/CD (Jenkins, Azure Pipelines, GitHub Actions) → IaC (Terraform, Ansible) → Observability
+  <!-- ══ MAIN BODY ═══════════════════════════════════════════ -->
+  <div class="main-body">
 
-**Tier 2 — Advanced:** DevSecOps → Python for DevOps → Cloud (Azure + AWS) → Platform Engineering → Service Mesh → SRE → AI/MLOps → Interview Ready
+    <!-- ── LEFT PANEL ──────────────────────────────────────── -->
+    <nav class="left-panel" id="left-panel">
+      <div class="panel-section-label">Navigation</div>
 
----
+      <!-- Home + Map quick links -->
+      <div class="topic-btn" onclick="navigateTo('home')">
+        <span class="topic-icon">🏠</span>
+        <span class="topic-name">Home</span>
+      </div>
+      <div class="topic-btn" id="nav-map" onclick="navigateTo('map')">
+        <span class="topic-icon">🗺</span>
+        <span class="topic-name">Course Map</span>
+      </div>
+      <div class="topic-btn" onclick="navigateTo('prerequisites')">
+        <span class="topic-icon">⚙️</span>
+        <span class="topic-name">Prerequisites</span>
+        <span class="topic-progress-text">optional</span>
+      </div>
 
-## How to use locally
+      <div class="panel-section-label" style="margin-top:8px">Topics</div>
+      <div id="sidebar-content"></div>
+    </nav>
 
-```bash
-# Clone the repo
-git clone https://github.com/Nikhil-Sreeramoju/pipeline-zero.git
-cd pipeline-zero
+    <!-- Mobile overlay -->
+    <div class="left-panel-overlay"></div>
 
-# Start local server (Python — comes with every OS)
-python3 -m http.server 8080
+    <!-- ── RIGHT PANEL ─────────────────────────────────────── -->
+    <main class="right-panel">
 
-# Open in browser
-http://localhost:8080
-```
+      <!-- ════ HOME SCREEN ════════════════════════════════════ -->
+      <div class="screen active" id="screen-home">
 
-Or use **VS Code Live Server** extension — install it, right-click index.html → "Open with Live Server".
+        <div class="home-hero">
+          <div class="home-tag">🚀 PipelineZero — DevOps Learning Platform</div>
+          <h1 class="home-title">From Zero to<br>Production-Ready</h1>
+          <p class="home-desc">88 lessons covering Kubernetes, Docker, CI/CD, Terraform, Python, Platform Engineering, DevSecOps and more — built for 2026 market requirements.</p>
 
----
+          <div class="home-stats">
+            <div class="home-stat">
+              <span class="home-stat-num" id="home-lessons-done">0</span>
+              <span class="home-stat-label">Lessons done</span>
+            </div>
+            <div class="home-stat">
+              <span class="home-stat-num" id="home-progress-pct">0%</span>
+              <span class="home-stat-label">Complete</span>
+            </div>
+            <div class="home-stat">
+              <span class="home-stat-num" id="home-xp">0</span>
+              <span class="home-stat-label">XP earned</span>
+            </div>
+            <div class="home-stat">
+              <span class="home-stat-num">88</span>
+              <span class="home-stat-label">Total lessons</span>
+            </div>
+          </div>
 
-## How to deploy updates to GitHub Pages
+          <button class="btn-continue" onclick="document.getElementById('current-lesson-card').click()">
+            ▶ Continue Learning
+          </button>
+        </div>
 
-```bash
-# Make your changes to any file
-git add .
-git commit -m "Add Kubernetes networking lesson"
-git push origin main
-# GitHub Pages auto-deploys in ~60 seconds
-```
+        <!-- Current lesson -->
+        <div class="current-lesson-card" id="current-lesson-card">
+          <div class="clc-left">
+            <div class="clc-tag">▶ Continue learning</div>
+            <div class="clc-title">Loading...</div>
+            <div class="clc-meta"></div>
+          </div>
+          <div class="clc-arrow">→</div>
+        </div>
 
----
+        <!-- Quick nav cards -->
+        <div class="home-quick-grid">
+          <div class="hq-card" onclick="navigateTo('prerequisites')">
+            <div class="hq-icon">⚙️</div>
+            <div class="hq-title">Prerequisites</div>
+            <div class="hq-desc">Install tools before starting</div>
+          </div>
+          <div class="hq-card" onclick="navigateTo('map')">
+            <div class="hq-icon">🗺</div>
+            <div class="hq-title">Course Map</div>
+            <div class="hq-desc">See all topics at once</div>
+          </div>
+          <div class="hq-card" onclick="navigateTopic('foundation')">
+            <div class="hq-icon">🐧</div>
+            <div class="hq-title">Start: Foundation</div>
+            <div class="hq-desc">Linux, Git, Networking</div>
+          </div>
+          <div class="hq-card" onclick="navigateTopic('kubernetes')">
+            <div class="hq-icon">☸</div>
+            <div class="hq-title">Kubernetes</div>
+            <div class="hq-desc">22 lessons, scratch to advanced</div>
+          </div>
+        </div>
 
-## File structure
+        <!-- Learning path overview -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;">
+          <div style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
+            📋 Your Learning Path
+            <span style="font-size:11px;color:var(--text3);font-weight:400">follow in order or jump to any topic</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+              <span style="width:28px;height:28px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--green);flex-shrink:0">1</span>
+              <span><strong>Tier 1 — Core Skills</strong> <span style="color:var(--text3)">(Foundation → Docker → Kubernetes → CI/CD → IaC → Observability)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+              <span style="width:28px;height:28px;background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--purple);flex-shrink:0">2</span>
+              <span><strong>Tier 2 — Advanced</strong> <span style="color:var(--text3)">(DevSecOps → Python → Cloud → Platform Eng → SRE → AI/MLOps)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+              <span style="width:28px;height:28px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--amber);flex-shrink:0">🎯</span>
+              <span><strong>Interview Ready</strong> <span style="color:var(--text3)">(Scenario practice → System design → Certification roadmap)</span></span>
+            </div>
+          </div>
+        </div>
 
-```
-pipeline-zero/
-├── index.html          ← App shell, layout, all screens
-├── styles.css          ← Design system, animations, responsive
-├── app.js              ← Routing, progress engine, lesson player
-├── data/
-│   ├── foundation.js   ← Foundation lessons (Linux, Git, Networking)
-│   └── ...             ← One file per topic, added each session
-├── animations/
-│   ├── git.js          ← Git branching animated explainer
-│   └── ...             ← Topic-specific animations
-└── README.md
-```
+      </div><!-- /screen-home -->
 
----
+      <!-- ════ MAP SCREEN ══════════════════════════════════════ -->
+      <div class="screen" id="screen-map">
+        <div class="map-header">
+          <h2 class="map-title">🗺 Course Map</h2>
+          <p class="map-desc">All topics at a glance. Click any topic to see its lessons. Work through Tier 1 first, then Tier 2.</p>
+        </div>
 
-## Adding a new topic
+        <div class="map-tier">
+          <div class="map-tier-label">
+            <span class="map-tier-badge tier1">Tier 1 — Core Skills</span>
+            <span style="font-size:12px;color:var(--text3)">Foundation of every DevOps role</span>
+          </div>
+          <div class="map-grid" id="map-grid-tier1"></div>
+        </div>
 
-1. Create `data/yourtopic.js` following the same structure as `data/foundation.js`
-2. Add `<script src="data/yourtopic.js"></script>` to `index.html` before `app.js`
-3. The topic auto-appears in the sidebar and map
+        <div class="map-tier">
+          <div class="map-tier-label">
+            <span class="map-tier-badge tier2">Tier 2 — Advanced</span>
+            <span style="font-size:12px;color:var(--text3)">Senior and specialist skills</span>
+          </div>
+          <div class="map-grid" id="map-grid-tier2"></div>
+        </div>
+      </div><!-- /screen-map -->
 
----
+      <!-- ════ PREREQUISITES SCREEN ════════════════════════════ -->
+      <div class="screen" id="screen-prereqs">
+        <div class="page-header" style="margin-bottom:20px">
+          <h2 style="font-size:22px;font-weight:700;margin-bottom:6px">⚙️ Prerequisites</h2>
+          <p style="font-size:13px;color:var(--text2);line-height:1.65">Install these tools before starting labs. Each has a copy button and a verify command. <strong style="color:var(--text)">Completely optional</strong> — skip if already set up, or use cloud playgrounds for labs instead.</p>
+          <div style="margin-top:10px;font-size:13px;color:var(--green);font-weight:600" id="prereq-done-count">0 / 10 installed</div>
+        </div>
+        <div class="prereq-grid" id="prereq-grid-container"></div>
+        <div style="margin-top:20px;padding:16px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:var(--radius);font-size:13px;color:var(--text2);line-height:1.7">
+          💡 <strong style="color:var(--text)">Running labs locally:</strong> Start your local K8s cluster with <code style="font-family:var(--mono);color:#93c5fd;font-size:12px">minikube start</code> before K8s labs. Run a local server with <code style="font-family:var(--mono);color:#93c5fd;font-size:12px">python3 -m http.server 8080</code> from the pipeline-zero folder to use this app offline.
+        </div>
+      </div><!-- /screen-prereqs -->
 
-## Certifications covered
+      <!-- ════ TOPIC LESSONS SCREEN ════════════════════════════ -->
+      <div class="screen" id="screen-topic">
+        <button class="btn-back" onclick="navigateTo('map')">← Back to Map</button>
+        <div style="height:16px"></div>
+        <div id="topic-header-area"></div>
+        <div style="height:20px"></div>
+        <div class="lessons-list" id="lessons-list-area"></div>
+      </div><!-- /screen-topic -->
 
-- 🎯 **CKA** — Certified Kubernetes Administrator
-- ☁ **AZ-400** — Microsoft Azure DevOps Engineer Expert
-- 🟠 **AWS DevOps Pro** — AWS Certified DevOps Engineer Professional
-- 🐧 **LFCS** — Linux Foundation Certified SysAdmin
+      <!-- ════ LESSON PLAYER SCREEN ════════════════════════════ -->
+      <div class="screen" id="screen-lesson">
 
----
+        <!-- Lesson header: breadcrumb + step dots -->
+        <div class="lesson-player-header">
+          <button class="btn-back" onclick="navigateTopic(State.currentTopic)">← Lessons</button>
+          <div class="lesson-breadcrumb" id="lesson-breadcrumb"></div>
+          <div class="lesson-step-indicator" id="lesson-step-dots"></div>
+        </div>
 
-Built with: Pure HTML + CSS + Vanilla JS. No frameworks, no build step, works offline.
+        <!-- Cert badges -->
+        <div class="lesson-cert-badges" id="lesson-cert-area"></div>
+
+        <!-- Step content rendered here -->
+        <div id="lesson-step-content"></div>
+
+        <!-- Bottom nav -->
+        <div class="lesson-nav">
+          <button class="btn-prev" id="btn-step-prev" style="display:none">← Back</button>
+          <div style="flex:1"></div>
+          <button class="btn-next" id="btn-step-next">Continue →</button>
+        </div>
+
+      </div><!-- /screen-lesson -->
+
+    </main><!-- /right-panel -->
+  </div><!-- /main-body -->
+
+</div><!-- /app -->
+
+<!-- ══ DATA FILES ═══════════════════════════════════════════ -->
+<script src="data/foundation.js"></script>
+<!-- Future topic data files added here:
+<script src="data/containers.js"></script>
+<script src="data/kubernetes.js"></script>
+<script src="data/cicd.js"></script>
+<script src="data/iac.js"></script>
+<script src="data/observability.js"></script>
+<script src="data/devsecops.js"></script>
+<script src="data/python.js"></script>
+<script src="data/cloud.js"></script>
+<script src="data/platform-eng.js"></script>
+<script src="data/service-mesh.js"></script>
+<script src="data/sre.js"></script>
+<script src="data/aiops.js"></script>
+<script src="data/interview-ready.js"></script>
+-->
+
+<!-- ══ ANIMATION FILES ══════════════════════════════════════ -->
+<script src="animations/git.js"></script>
+<!-- Future animation files:
+<script src="animations/docker.js"></script>
+<script src="animations/kubernetes.js"></script>
+<script src="animations/cicd.js"></script>
+<script src="animations/networking.js"></script>
+<script src="animations/hpa.js"></script>
+-->
+
+<!-- ══ APP ENGINE ═══════════════════════════════════════════ -->
+<script src="app.js"></script>
+
+</body>
+</html>
