@@ -731,7 +731,7 @@ helm uninstall name<br>
 helm history name (all revisions)<br>
 helm template name ./chart (render YAML without installing)<br><br>
 <strong>Idempotent pattern for CI/CD:</strong><br>
-helm upgrade --install myapp ./chart -f values-${ENV}.yaml<br>
+helm upgrade --install myapp ./chart -f values-\${ENV}.yaml<br>
 Installs if not exists, upgrades if exists. One command for all environments.`
     },
     commands:[
